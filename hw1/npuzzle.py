@@ -48,10 +48,33 @@ def get_successors(state):
 
     child_states = []
 
-    # YOUR CODE HERE . Hint: Find the "hole" first, then generate each possible
-    # successor state by calling the swap_cells method.
-    # Exclude actions that are not applicable.
-
+    for row in range(len(state)):
+        for col in range(len(state[row])):
+            if state[row][col] == 0:
+                #left
+                if col + 1 < len(state[row]):
+                    left_state = []
+                    left_state.append("Left")
+                    left_state.append(swap_cells(state, row, col, row, col + 1))
+                    child_states.append(left_state)
+                #right
+                if col - 1 > -1:
+                    right_state = []
+                    right_state.append("Right")
+                    right_state.append(swap_cells(state, row, col, row, col - 1))
+                    child_states.append(right_state)
+                #up
+                if row + 1 < len(state):
+                    up_state = []
+                    up_state.append("Up")
+                    up_state.append(swap_cells(state, row, col, row + 1, col))
+                    child_states.append(up_state)
+                #down
+                if row - 1 > -1:
+                    down_state = []
+                    down_state.append("Down")
+                    down_state.append(swap_cells(state, row - 1, col, row, col))
+                    child_states.append(down_state)
 
     return child_states
 
