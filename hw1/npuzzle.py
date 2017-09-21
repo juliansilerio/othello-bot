@@ -97,20 +97,42 @@ def bfs(state):
     parents = {}
     actions = {}
 
+    frontier = []
+
     states_expanded = 0
     max_frontier = 0
 
-    #YOUR CODE HERE
+    frontier = [state]
+    explored = set()
+    seen = set()
+    seen.add(state)
 
-    #Hint: You may start with this:
-    # frontier = [state]
-    # explored = set()
-    # seen = set()
-    # seen.add(state)
+    while frontier:
+        n = frontier.pop(0)
+        explored.add(n)
+        states_expanded += 1
+
+        if goal_test(n):
+            max_frontier = len(frontier) + 1 # add 1 for current state
+            path = get_path(n, parents, actions)
+            return path, states_expanded, max_frontier
+
+        for action, successor in get_successors(n):
+            if successor not in explored and successor not in seen:
+                parents[successor] = n
+                actions[successor] = action
+                frontier.append(successor)
+                seen.add(successor)
 
     #  return solution, states_expanded, max_frontier
     return None, states_expanded, max_frontier # No solution found
 
+def get_path(state, parents, actions):
+    path = []
+    while state in parents:
+        path = [actions[state]] + path
+        state = parents[state]
+    return path
 
 def dfs(state):
     """
