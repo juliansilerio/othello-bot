@@ -179,9 +179,16 @@ def misplaced_heuristic(state):
     """
     Returns the number of misplaced tiles.
     """
+    total = 0
+    counter = 0
 
-    #YOUR CODE HERE
-    return 0 # replace this
+    for row in state:
+        for col in row:
+            if col != counter:
+                total += 1
+            counter += 1
+
+    return total # replace this
 
 
 def manhattan_heuristic(state):
