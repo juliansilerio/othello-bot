@@ -184,20 +184,34 @@ def misplaced_heuristic(state):
 
     for row in state:
         for col in row:
-            if col != counter:
+            if col != counter and col > 0:
                 total += 1
             counter += 1
 
-    return total # replace this
+    return total
 
 
 def manhattan_heuristic(state):
     """
     For each misplaced tile, compute the manhattan distance between the current
-    position and the goal position. THen sum all distances.
+    position and the goal position. Then sum all distances.
     """
 
-    return 0 # replace this
+    total = 0
+    counter = 0
+
+    goal_state = []
+
+    for x in range(len(state)):
+        for y in range(len(state[x])):
+            goal_state.append((x, y))
+
+    for row in range(len(state)):
+        for col in range(len(state[row])):
+            if state[row][col] != counter and state[row][col] > 0:
+                total += abs(goal_state[state[row][col]][0] - row) + abs(goal_state[state[row][col]][1] - col)
+            counter += 1
+    return total
 
 
 def best_first(state, heuristic = misplaced_heuristic):
