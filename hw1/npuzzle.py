@@ -97,10 +97,10 @@ def bfs(state):
     parents = {}
     actions = {}
 
-    frontier = []
-
     states_expanded = 0
     max_frontier = 0
+
+    frontier = []
 
     frontier = [state]
     explored = set()
@@ -147,9 +147,30 @@ def dfs(state):
     states_expanded = 0
     max_frontier = 0
 
-    #YOUR CODE HERE
+    frontier = []
 
-    #  return solution, states_expanded, max_frontier
+    frontier = [state]
+    explored = set()
+    seen = set()
+    seen.add(state)
+
+    while frontier:
+        n = frontier.pop()
+        explored.add(n)
+        states_expanded += 1
+
+        if goal_test(n):
+            max_frontier = len(frontier) + 1 # add 1 for current state
+            path = get_path(n, parents, actions)
+            return path, states_expanded, max_frontier
+
+        for action, successor in get_successors(n):
+            if successor not in explored and successor not in seen:
+                parents[successor] = n
+                actions[successor] = action
+                frontier.append(successor)
+                seen.add(successor)
+
 
     return None, states_expanded, max_frontier # No solution found
 
@@ -251,14 +272,14 @@ def print_result(solution, states_expanded, max_frontier):
 if __name__ == "__main__":
 
     #Easy test case
-    test_state = ((1, 4, 2),
-                  (0, 5, 8),
-                  (3, 6, 7))
+    #test_state = ((1, 4, 2),
+    #              (0, 5, 8),
+    #              (3, 6, 7))
 
     #More difficult test case
-    #test_state = ((7, 2, 4),
-    #              (5, 0, 6),
-    #              (8, 3, 1))
+    test_state = ((7, 2, 4),
+                  (5, 0, 6),
+                  (8, 3, 1))
 
     print(state_to_string(test_state))
     print()
@@ -272,13 +293,13 @@ if __name__ == "__main__":
         print(solution)
     print("Total time: {0:.3f}s".format(end-start))
 
-    #print()
-    #print("====DFS====")
-    #start = time.time()
-    #solution, states_expanded, max_frontier = dfs(test_state)
-    #end = time.time()
-    #print_result(solution, states_expanded, max_frontier)
-    #print("Total time: {0:.3f}s".format(end-start))
+    print()
+    print("====DFS====")
+    start = time.time()
+    solution, states_expanded, max_frontier = dfs(test_state)
+    end = time.time()
+    print_result(solution, states_expanded, max_frontier)
+    print("Total time: {0:.3f}s".format(end-start))
 
     #print()
     #print("====Greedy Best-First (Misplaced Tiles Heuristic)====")
