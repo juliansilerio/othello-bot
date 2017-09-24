@@ -6,7 +6,7 @@ for solving the n-Puzzle, which is a generalization of the 8 and 15 puzzle to
 squares of arbitrary size (we will only test it with 8-puzzles for now).
 See Courseworks for detailed instructions.
 
-@author: YOUR NAME (YOUR UNI)
+@author: Julian (jjs2245)
 """
 
 import time
@@ -227,19 +227,33 @@ def best_first(state, heuristic = misplaced_heuristic):
 
     parents = {}
     actions = {}
-    costs = {}
-    costs[state] = 0
+
+    frontier = []
+    heappush(frontier, (0,state))
 
     states_expanded = 0
     max_frontier = 0
 
-    #YOUR CODE HERE
+    explored = set()
+    seen = set()
+    seen.add(state)
 
-    # The following line computes the heuristic for a state
-    # by calling the heuristic function passed as a parameter.
-    # f = heuristic(state)
+    while frontier:
+        cost, n = heappop(frontier)
+        explored.add(n)
+        states_expanded += 1
 
-    #  return solution, states_expanded, max_frontier
+        if goal_test(n):
+            max_frontier = len(frontier) + 1 # add 1 for current state
+            path = get_path(n, parents, actions)
+            return path, states_expanded, max_frontier
+
+        for action, successor in get_successors(n):
+            if successor not in explored and successor not in seen:
+                parents[successor] = n
+                actions[successor] = action
+                heappush(frontier, (heuristic(successor), successor))
+                seen.add(successor)
 
     return None, 0, 0
 
@@ -285,7 +299,7 @@ def print_result(solution, states_expanded, max_frontier):
         print("No solution found.")
     else:
         print("Solution has {} actions.".format(len(solution)))
-    print("Total states exppanded: {}.".format(states_expanded))
+    print("Total states expanded: {}.".format(states_expanded))
     print("Max frontier size: {}.".format(max_frontier))
 
 
@@ -305,9 +319,10 @@ if __name__ == "__main__":
     print(state_to_string(test_state))
     print()
 
+    '''
     print("====BFS====")
     start = time.time()
-    solution, states_expanded, max_frontier = bfs(test_state) #
+    solution, states_expanded, max_frontier = bfs(test_state)
     end = time.time()
     print_result(solution, states_expanded, max_frontier)
     if solution is not None:
@@ -322,13 +337,15 @@ if __name__ == "__main__":
     print_result(solution, states_expanded, max_frontier)
     print("Total time: {0:.3f}s".format(end-start))
 
-    #print()
-    #print("====Greedy Best-First (Misplaced Tiles Heuristic)====")
-    #start = time.time()
-    #solution, states_expanded, max_frontier = best_first(test_state, misplaced_heuristic)
-    #end = time.time()
-    #print_result(solution, states_expanded, max_frontier)
-    #print("Total time: {0:.3f}s".format(end-start))
+    print()
+    print("====Greedy Best-First (Misplaced Tiles Heuristic)====")
+    start = time.time()
+    solution, states_expanded, max_frontier = best_first(test_state, misplaced_heuristic)
+    end = time.time()
+    print_result(solution, states_expanded, max_frontier)
+    print("Total time: {0:.3f}s".format(end-start))
+
+    '''
 
     #print()
     #print("====A* (Misplaced Tiles Heuristic)====")
