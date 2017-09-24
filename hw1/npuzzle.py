@@ -105,7 +105,6 @@ def bfs(state):
     frontier = [state]
     explored = set()
     seen = set()
-    seen.add(state)
 
     while frontier:
         n = frontier.pop(0)
@@ -152,7 +151,6 @@ def dfs(state):
     frontier = [state]
     explored = set()
     seen = set()
-    seen.add(state)
 
     while frontier:
         n = frontier.pop()
@@ -236,7 +234,6 @@ def best_first(state, heuristic = misplaced_heuristic):
 
     explored = set()
     seen = set()
-    seen.add(state)
 
     while frontier:
         cost, n = heappop(frontier)
@@ -282,7 +279,6 @@ def astar(state, heuristic = misplaced_heuristic):
 
     explored = set()
     seen = set()
-    seen.add(state)
 
     while frontier:
         cost, n = heappop(frontier)
@@ -298,8 +294,7 @@ def astar(state, heuristic = misplaced_heuristic):
             if successor not in seen and successor not in explored:
                 parents[successor] = n
                 actions[successor] = action
-                costs[n] += 1
-                costs[successor] = costs[n] + heuristic(successor)
+                costs[successor] = cost + heuristic(successor)
                 heappush(frontier, (costs[successor], successor))
                 seen.add(successor)
 
@@ -318,7 +313,6 @@ def print_result(solution, states_expanded, max_frontier):
     print("Max frontier size: {}.".format(max_frontier))
 
 
-
 if __name__ == "__main__":
 
     #Easy test case
@@ -331,8 +325,9 @@ if __name__ == "__main__":
                   (5, 0, 6),
                   (8, 3, 1))
 
-    print(state_to_string(test_state))
-    print()
+    #print(state_to_string(test_state))
+    #print()
+
 
     print("====BFS====")
     start = time.time()
@@ -359,6 +354,7 @@ if __name__ == "__main__":
     print_result(solution, states_expanded, max_frontier)
     print("Total time: {0:.3f}s".format(end-start))
 
+
     print()
     print("====A* (Misplaced Tiles Heuristic)====")
     start = time.time()
@@ -367,11 +363,12 @@ if __name__ == "__main__":
     print_result(solution, states_expanded, max_frontier)
     print("Total time: {0:.3f}s".format(end-start))
 
-    #print()
-    #print("====A* (Total Manhattan Distance Heuristic)====")
-    #start = time.time()
-    #solution, states_expanded, max_frontier = astar(test_state, manhattan_heuristic)
-    #end = time.time()
-    #print_result(solution, states_expanded, max_frontier)
-    #print("Total time: {0:.3f}s".format(end-start))
+
+    print()
+    print("====A* (Total Manhattan Distance Heuristic)====")
+    start = time.time()
+    solution, states_expanded, max_frontier = astar(test_state, manhattan_heuristic)
+    end = time.time()
+    print_result(solution, states_expanded, max_frontier)
+    print("Total time: {0:.3f}s".format(end-start))
 
