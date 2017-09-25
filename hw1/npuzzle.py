@@ -294,10 +294,14 @@ def astar(state, heuristic = misplaced_heuristic):
             if successor not in seen and successor not in explored:
                 parents[successor] = n
                 actions[successor] = action
-                costs[successor] = cost + heuristic(successor)
-                heappush(frontier, (costs[successor], successor))
+                costs[successor] = 1 + cost
+                heappush(frontier, (costs[successor] + heuristic(successor), successor))
                 seen.add(successor)
-
+            elif cost + 1 < costs[successor]:
+                costs[successor] = cost + 1
+                parents[successor] = n
+                actions[successor] = action
+                heappush(frontier, (costs[successor] + heuristic(successor), successor))
     return None, states_expanded, max_frontier # No solution found
 
 
@@ -328,7 +332,7 @@ if __name__ == "__main__":
     #print(state_to_string(test_state))
     #print()
 
-
+    '''
     print("====BFS====")
     start = time.time()
     solution, states_expanded, max_frontier = bfs(test_state)
@@ -354,7 +358,7 @@ if __name__ == "__main__":
     print_result(solution, states_expanded, max_frontier)
     print("Total time: {0:.3f}s".format(end-start))
 
-
+    '''
     print()
     print("====A* (Misplaced Tiles Heuristic)====")
     start = time.time()
@@ -363,7 +367,7 @@ if __name__ == "__main__":
     print_result(solution, states_expanded, max_frontier)
     print("Total time: {0:.3f}s".format(end-start))
 
-
+    '''
     print()
     print("====A* (Total Manhattan Distance Heuristic)====")
     start = time.time()
@@ -371,4 +375,4 @@ if __name__ == "__main__":
     end = time.time()
     print_result(solution, states_expanded, max_frontier)
     print("Total time: {0:.3f}s".format(end-start))
-
+    '''
