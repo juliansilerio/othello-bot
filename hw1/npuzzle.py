@@ -320,19 +320,19 @@ def print_result(solution, states_expanded, max_frontier):
 if __name__ == "__main__":
 
     #Easy test case
-    #test_state = ((1, 4, 2),
-    #              (0, 5, 8),
-    #              (3, 6, 7))
+    test_state = ((1, 4, 2),
+                  (0, 5, 8),
+                  (3, 6, 7))
 
     #More difficult test case
-    test_state = ((7, 2, 4),
-                  (5, 0, 6),
-                  (8, 3, 1))
+    #test_state = ((7, 2, 4),
+    #              (5, 0, 6),
+    #              (8, 3, 1))
 
-    #print(state_to_string(test_state))
-    #print()
+    print(state_to_string(test_state))
+    print()
 
-    '''
+
     print("====BFS====")
     start = time.time()
     solution, states_expanded, max_frontier = bfs(test_state)
@@ -358,7 +358,7 @@ if __name__ == "__main__":
     print_result(solution, states_expanded, max_frontier)
     print("Total time: {0:.3f}s".format(end-start))
 
-    '''
+
     print()
     print("====A* (Misplaced Tiles Heuristic)====")
     start = time.time()
@@ -367,7 +367,7 @@ if __name__ == "__main__":
     print_result(solution, states_expanded, max_frontier)
     print("Total time: {0:.3f}s".format(end-start))
 
-    '''
+
     print()
     print("====A* (Total Manhattan Distance Heuristic)====")
     start = time.time()
@@ -375,4 +375,4 @@ if __name__ == "__main__":
     end = time.time()
     print_result(solution, states_expanded, max_frontier)
     print("Total time: {0:.3f}s".format(end-start))
-    '''
+
