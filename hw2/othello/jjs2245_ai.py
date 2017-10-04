@@ -24,18 +24,39 @@ def compute_utility(board, color):
         return dark - light
     elif color is 2:
         return light - dark
-    return 0
-
 
 ############ MINIMAX ###############################
 
 def minimax_min_node(board, color):
+    moves = get_possible_moves(board, color)
 
-    return None
+    if not moves:
+        sys.stderr.write('min ')
+        return compute_utility(board, color)
+    else:
+        min = 99999999
+        for move in moves:
+            new_board = play_move(board, color, move[0], move[1])
+            score = minimax_max_node(new_board, color)
+            if min > score:
+                min = score
+            return min
 
 
-def minimax_max_node(board, color, alpha, beta):
-    return None
+def minimax_max_node(board, color):
+    moves = get_possible_moves(board, color)
+
+    if not moves:
+        sys.stderr.write('max ')
+        return compute_utility(board, color)
+    else:
+        max = -99999999
+        for move in moves:
+            new_board = play_move(board, color, move[0], move[1])
+            score = minimax_min_node(new_board, color)
+            if max < score:
+                max = score
+            return max
 
 
 def select_move_minimax(board, color):
@@ -44,7 +65,18 @@ def select_move_minimax(board, color):
     The return value is a tuple of integers (i,j), where
     i is the column and j is the row on the board.
     """
-    return 0,0
+    moves = get_possible_moves(board,color)
+    best_score = -9999999999
+    best_move = None
+
+    for move in moves:
+        new_board = play_move(board, color, move[0], move[1])
+        score = minimax_min_node(new_board, color)
+        if score > best_score:
+            best_score = score
+            best_move = move
+    sys.stderr.write('best score {}\n'.format(best_score))
+    return (best_move)
 
 ############ ALPHA-BETA PRUNING #####################
 
