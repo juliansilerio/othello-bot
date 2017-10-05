@@ -108,11 +108,11 @@ def select_move_minimax(board, color):
 ############ ALPHA-BETA PRUNING #####################
 
 #alphabeta_min_node(board, color, alpha, beta, level, limit)
-def alphabeta_min_node(board, color, alpha, beta):
+def alphabeta_min_node(board, color, alpha, beta, level, limit):
     moves = get_possible_moves(board, color)
     nodes = []
 
-    if not moves:
+    if not moves or level == limit:
         return compute_utility(board, color)
     else:
         min = math.inf
@@ -123,7 +123,7 @@ def alphabeta_min_node(board, color, alpha, beta):
         while nodes:
             new_board = heappop(nodes)[1]
             if new_board not in states:
-                score = alphabeta_max_node(new_board, color, alpha, beta)
+                score = alphabeta_max_node(new_board, color, alpha, beta, level + 1, limit)
                 states[new_board] = score
             else:
                 score = states[new_board]
@@ -137,11 +137,11 @@ def alphabeta_min_node(board, color, alpha, beta):
         return min
 
 #alphabeta_max_node(board, color, alpha, beta, level, limit)
-def alphabeta_max_node(board, color, alpha, beta):
+def alphabeta_max_node(board, color, alpha, beta, level, limit):
     moves = get_possible_moves(board, color)
     nodes = []
 
-    if not moves:
+    if not moves or level == limit:
         return compute_utility(board, color)
     else:
         max = -math.inf
@@ -152,7 +152,7 @@ def alphabeta_max_node(board, color, alpha, beta):
         while nodes:
             new_board = heappop(nodes)[1]
             if new_board not in states:
-                score = alphabeta_min_node(new_board, color, alpha, beta)
+                score = alphabeta_min_node(new_board, color, alpha, beta, level + 1, limit)
                 states[new_board] = score
             else:
                 score = states[new_board]
@@ -171,6 +171,8 @@ def select_move_alphabeta(board, color):
     best_score = -math.inf
     best_move = None
 
+    limit = 15 #change this to change limit
+
     alpha = -math.inf
     beta = math.inf
 
@@ -181,7 +183,7 @@ def select_move_alphabeta(board, color):
     while nodes:
         new_board = heappop(nodes)[1]
         if new_board not in states:
-            score = alphabeta_min_node(new_board, color, alpha, beta)
+            score = alphabeta_min_node(new_board, color, alpha, beta, 1, limit)
             states[new_board] = score
         else:
             score = states[new_board]
