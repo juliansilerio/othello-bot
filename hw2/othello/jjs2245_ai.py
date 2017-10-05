@@ -11,9 +11,7 @@ complete and submit.
          jjs2245
 """
 
-import random
-import sys
-import time
+import random, sys, time, math
 
 # You can use the functions in othello_shared to write your AI
 from othello_shared import find_lines, get_possible_moves, get_score, play_move
@@ -34,13 +32,13 @@ def minimax_min_node(board, color):
         sys.stderr.write('min ')
         return compute_utility(board, color)
     else:
-        min = 99999999
+        min = math.inf
         for move in moves:
             new_board = play_move(board, color, move[0], move[1])
             score = minimax_max_node(new_board, color)
             if min > score:
                 min = score
-            return min
+        return min
 
 
 def minimax_max_node(board, color):
@@ -50,13 +48,13 @@ def minimax_max_node(board, color):
         sys.stderr.write('max ')
         return compute_utility(board, color)
     else:
-        max = -99999999
+        max = -math.inf
         for move in moves:
             new_board = play_move(board, color, move[0], move[1])
             score = minimax_min_node(new_board, color)
             if max < score:
                 max = score
-            return max
+        return max
 
 
 def select_move_minimax(board, color):
@@ -66,7 +64,7 @@ def select_move_minimax(board, color):
     i is the column and j is the row on the board.
     """
     moves = get_possible_moves(board,color)
-    best_score = -9999999999
+    best_score = -math.inf
     best_move = None
 
     for move in moves:
@@ -82,16 +80,55 @@ def select_move_minimax(board, color):
 
 #alphabeta_min_node(board, color, alpha, beta, level, limit)
 def alphabeta_min_node(board, color, alpha, beta):
-    return None
+    moves = get_possible_moves(board, color)
 
+    if not moves:
+        sys.stderr.write('min ')
+        return compute_utility(board, color)
+    else:
+        min = math.inf
+        for move in moves:
+            new_board = play_move(board, color, move[0], move[1])
+            score = alphabeta_max_node(new_board, color, alpha, beta)
+            if min <= alpha:
+                return min
+            if min > score:
+                min = score
+        return min
 
 #alphabeta_max_node(board, color, alpha, beta, level, limit)
 def alphabeta_max_node(board, color, alpha, beta):
-    return None
+    moves = get_possible_moves(board, color)
 
+    if not moves:
+        sys.stderr.write('max ')
+        return compute_utility(board, color)
+    else:
+        max = -math.inf
+        for move in moves:
+            new_board = play_move(board, color, move[0], move[1])
+            score = minimax_min_node(new_board, color, alpha, beta)
+            if max < score:
+                max = score
+        return max
 
 def select_move_alphabeta(board, color):
-    return 0,0
+    moves = get_possible_moves(board, color)
+
+    best_score = -math.inf
+    best_move = None
+
+    alpha = -math.inf
+    beta = math.inf
+
+    for move in moves:
+        new_board = play_move(board, color, move[0], move[1])
+        score = alphabeta_min_node(new_board, color, alpha, beta)
+        if score > best_score:
+            best_score = score
+            best_move = move
+    sys.stderr.write('best score {}\n'.format(best_score))
+    return (best_move)
 
 
 ####################################################
@@ -102,7 +139,7 @@ def run_ai():
     Then it repeatedly receives the current score and current board state
     until the game is over.
     """
-    print("Minimax AI") # First line is the name of this AI
+    print("Julian's AI") # First line is the name of this AI
     color = int(input()) # Then we read the color: 1 for dark (goes first),
                          # 2 for light.
 
