@@ -12,6 +12,7 @@ complete and submit.
 """
 
 import random, sys, time, math
+from heapq import heappush, heappop
 
 states = {}
 
@@ -29,6 +30,7 @@ def compute_utility(board, color):
 
 def minimax_min_node(board, color):
     moves = get_possible_moves(board, color)
+    nodes = []
 
     if not moves:
         return compute_utility(board, color)
@@ -36,6 +38,10 @@ def minimax_min_node(board, color):
         min = math.inf
         for move in moves:
             new_board = play_move(board, color, move[0], move[1])
+            heappush(nodes, (compute_utility, new_board))
+
+        while nodes:
+            new_board = heappop(nodes)[1]
             if new_board not in states:
                 score = minimax_max_node(new_board, color)
                 states[new_board] = score
@@ -48,6 +54,7 @@ def minimax_min_node(board, color):
 
 def minimax_max_node(board, color):
     moves = get_possible_moves(board, color)
+    nodes = []
 
     if not moves:
         return compute_utility(board, color)
@@ -55,6 +62,10 @@ def minimax_max_node(board, color):
         max = -math.inf
         for move in moves:
             new_board = play_move(board, color, move[0], move[1])
+            heappush(nodes, (compute_utility, new_board))
+
+        while nodes:
+            new_board = heappop(nodes)[1]
             if new_board not in states:
                 score = minimax_min_node(new_board, color)
                 states[new_board] = score
@@ -74,9 +85,14 @@ def select_move_minimax(board, color):
     moves = get_possible_moves(board,color)
     best_score = -math.inf
     best_move = None
+    nodes = []
 
     for move in moves:
         new_board = play_move(board, color, move[0], move[1])
+        heappush(nodes, (compute_utility, new_board))
+
+    while nodes:
+        new_board = heappop(nodes)[1]
         if new_board not in states:
             score = minimax_min_node(new_board, color)
             states[new_board] = score
@@ -85,6 +101,7 @@ def select_move_minimax(board, color):
         if score > best_score:
             best_score = score
             best_move = move
+
     sys.stderr.write('best score {}\n'.format(best_score))
     return (best_move)
 
@@ -93,6 +110,7 @@ def select_move_minimax(board, color):
 #alphabeta_min_node(board, color, alpha, beta, level, limit)
 def alphabeta_min_node(board, color, alpha, beta):
     moves = get_possible_moves(board, color)
+    nodes = []
 
     if not moves:
         return compute_utility(board, color)
@@ -100,6 +118,10 @@ def alphabeta_min_node(board, color, alpha, beta):
         min = math.inf
         for move in moves:
             new_board = play_move(board, color, move[0], move[1])
+            heappush(nodes, (compute_utility, new_board))
+
+        while nodes:
+            new_board = heappop(nodes)[1]
             if new_board not in states:
                 score = alphabeta_max_node(new_board, color, alpha, beta)
                 states[new_board] = score
@@ -117,6 +139,7 @@ def alphabeta_min_node(board, color, alpha, beta):
 #alphabeta_max_node(board, color, alpha, beta, level, limit)
 def alphabeta_max_node(board, color, alpha, beta):
     moves = get_possible_moves(board, color)
+    nodes = []
 
     if not moves:
         return compute_utility(board, color)
@@ -124,6 +147,10 @@ def alphabeta_max_node(board, color, alpha, beta):
         max = -math.inf
         for move in moves:
             new_board = play_move(board, color, move[0], move[1])
+            heappush(nodes, (compute_utility, new_board))
+
+        while nodes:
+            new_board = heappop(nodes)[1]
             if new_board not in states:
                 score = alphabeta_min_node(new_board, color, alpha, beta)
                 states[new_board] = score
@@ -139,6 +166,7 @@ def alphabeta_max_node(board, color, alpha, beta):
 
 def select_move_alphabeta(board, color):
     moves = get_possible_moves(board, color)
+    nodes = []
 
     best_score = -math.inf
     best_move = None
@@ -148,6 +176,10 @@ def select_move_alphabeta(board, color):
 
     for move in moves:
         new_board = play_move(board, color, move[0], move[1])
+        heappush(nodes, (compute_utility, new_board))
+
+    while nodes:
+        new_board = heappop(nodes)[1]
         if new_board not in states:
             score = alphabeta_min_node(new_board, color, alpha, beta)
             states[new_board] = score
