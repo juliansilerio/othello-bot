@@ -13,6 +13,8 @@ complete and submit.
 
 import random, sys, time, math
 
+states = {}
+
 # You can use the functions in othello_shared to write your AI
 from othello_shared import find_lines, get_possible_moves, get_score, play_move
 
@@ -34,7 +36,11 @@ def minimax_min_node(board, color):
         min = math.inf
         for move in moves:
             new_board = play_move(board, color, move[0], move[1])
-            score = minimax_max_node(new_board, color)
+            if new_board not in states:
+                score = minimax_max_node(new_board, color)
+                states[new_board] = score
+            else:
+                score = states[new_board]
             if min > score:
                 min = score
         return min
@@ -49,7 +55,11 @@ def minimax_max_node(board, color):
         max = -math.inf
         for move in moves:
             new_board = play_move(board, color, move[0], move[1])
-            score = minimax_min_node(new_board, color)
+            if new_board not in states:
+                score = minimax_min_node(new_board, color)
+                states[new_board] = score
+            else:
+                score = states[new_board]
             if max < score:
                 max = score
         return max
@@ -67,7 +77,11 @@ def select_move_minimax(board, color):
 
     for move in moves:
         new_board = play_move(board, color, move[0], move[1])
-        score = minimax_min_node(new_board, color)
+        if new_board not in states:
+            score = minimax_min_node(new_board, color)
+            states[new_board] = score
+        else:
+            score = states[new_board]
         if score > best_score:
             best_score = score
             best_move = move
@@ -86,7 +100,12 @@ def alphabeta_min_node(board, color, alpha, beta):
         min = math.inf
         for move in moves:
             new_board = play_move(board, color, move[0], move[1])
-            score = alphabeta_max_node(new_board, color, alpha, beta)
+            if new_board not in states:
+                score = alphabeta_max_node(new_board, color, alpha, beta)
+                states[new_board] = score
+            else:
+                score = states[new_board]
+
             if score < min:
                 min = score
                 if min <= alpha:
@@ -105,7 +124,11 @@ def alphabeta_max_node(board, color, alpha, beta):
         max = -math.inf
         for move in moves:
             new_board = play_move(board, color, move[0], move[1])
-            score = alphabeta_min_node(new_board, color, alpha, beta)
+            if new_board not in states:
+                score = alphabeta_min_node(new_board, color, alpha, beta)
+                states[new_board] = score
+            else:
+                score = states[new_board]
             if score > max:
                 max = score
                 if max >= beta:
@@ -125,7 +148,11 @@ def select_move_alphabeta(board, color):
 
     for move in moves:
         new_board = play_move(board, color, move[0], move[1])
-        score = alphabeta_min_node(new_board, color, alpha, beta)
+        if new_board not in states:
+            score = alphabeta_min_node(new_board, color, alpha, beta)
+            states[new_board] = score
+        else:
+            score = states[new_board]
         if score > best_score:
             best_score = score
             best_move = move
