@@ -29,7 +29,6 @@ def minimax_min_node(board, color):
     moves = get_possible_moves(board, color)
 
     if not moves:
-        sys.stderr.write('min ')
         return compute_utility(board, color)
     else:
         min = math.inf
@@ -45,7 +44,6 @@ def minimax_max_node(board, color):
     moves = get_possible_moves(board, color)
 
     if not moves:
-        sys.stderr.write('max ')
         return compute_utility(board, color)
     else:
         max = -math.inf
@@ -83,17 +81,18 @@ def alphabeta_min_node(board, color, alpha, beta):
     moves = get_possible_moves(board, color)
 
     if not moves:
-        sys.stderr.write('min ')
         return compute_utility(board, color)
     else:
         min = math.inf
         for move in moves:
             new_board = play_move(board, color, move[0], move[1])
             score = alphabeta_max_node(new_board, color, alpha, beta)
-            if min <= alpha:
-                return min
-            if min > score:
+            if score < min:
                 min = score
+                if min <= alpha:
+                    return score
+                if min < beta:
+                    beta = min
         return min
 
 #alphabeta_max_node(board, color, alpha, beta, level, limit)
@@ -101,15 +100,18 @@ def alphabeta_max_node(board, color, alpha, beta):
     moves = get_possible_moves(board, color)
 
     if not moves:
-        sys.stderr.write('max ')
         return compute_utility(board, color)
     else:
         max = -math.inf
         for move in moves:
             new_board = play_move(board, color, move[0], move[1])
-            score = minimax_min_node(new_board, color, alpha, beta)
-            if max < score:
+            score = alphabeta_min_node(new_board, color, alpha, beta)
+            if score > max:
                 max = score
+                if max >= beta:
+                    return max
+                if max > alpha:
+                    alpha = max
         return max
 
 def select_move_alphabeta(board, color):
@@ -163,8 +165,8 @@ def run_ai():
                                   # 2 : light disk (player 2)
 
             # Select the move and send it to the manager
-            movei, movej = select_move_minimax(board, color)
-            #movei, movej = select_move_alphabeta(board, color)
+            #movei, movej = select_move_minimax(board, color)
+            movei, movej = select_move_alphabeta(board, color)
             print("{} {}".format(movei, movej))
 
 
