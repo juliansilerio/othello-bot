@@ -171,7 +171,7 @@ def select_move_alphabeta(board, color):
     best_score = -math.inf
     best_move = None
 
-    limit = 15 #change this to change limit
+    limit = 19 #change this to change limit
 
     alpha = -math.inf
     beta = math.inf
