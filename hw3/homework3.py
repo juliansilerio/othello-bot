@@ -98,16 +98,21 @@ class NbClassifier(object):
         # build word_given_label for actual label
         for tuple in count_word_given_label.keys():
             word, label = tuple
-            self.word_given_label[tuple] = count_word_given_label[tuple]/count_label_wgl[label]
+            #self.word_given_label[tuple] = count_word_given_label[tuple]/count_label_wgl[label]
 
             # build wgl for other label if not present
             # also gonna build label_prior in here since iterating through count_label already
             for c_label in count_label.keys():
                 self.label_prior[c_label] = count_label[c_label]/float(total_labels)
 
-                if (word, c_label) not in self.word_given_label.keys():
-                    self.word_given_label[(word, c_label)] = (c)/(count_label_wgl[c_label]+(c*len(self.attribute_types)))
+                count_word = 0
 
+                if (word, c_label) in self.word_given_label.keys():
+                    count_word = count_word_given_label[(word, c_label)]
+
+                self.word_given_label[(word, c_label)] = (count_word + c)/(count_label_wgl[c_label]+(c*len(self.attribute_types)))
+
+        print(self.label_prior)
         print("Finish training")
 
     # given the probabilities predict the likelihood of being a given label
@@ -121,6 +126,7 @@ class NbClassifier(object):
             for word in words:
                 if word in self.attribute_types:
                     label_prob[label] += log(self.word_given_label[(word, label)])
+        print(label_prob)
         return label_prob
 
     def evaluate(self, test_filename):
@@ -139,9 +145,9 @@ class NbClassifier(object):
             for line in file.readlines():
                 label, text = line.split('\t')
                 label_candidates = self.predict(text)
-                print(label_candidates)
+                #print(label_candidates)
                 label_predict = max(label_candidates,key=label_candidates.get)
-                print("predicted:{}\nactual:{}\n".format(label_predict,label))
+                #print("predicted:{}\nactual:{}\n".format(label_predict,label))
                 if label_predict == label:
                     if label == 'spam':
                         tp += 1
