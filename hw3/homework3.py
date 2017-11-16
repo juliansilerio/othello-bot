@@ -43,7 +43,8 @@ class NbClassifier(object):
 
         print("Collecting attribute types for {}".format(training_filename))
         for datum in self.data:
-            words = extract_words(datum[1])
+            label, string = datum
+            words = extract_words(string)
             for word in words:
                 if word in counter.keys():
                     counter[word] += 1
@@ -79,6 +80,7 @@ class NbClassifier(object):
                 if word in self.attribute_types:
 
                     # wgl counts
+                    # counts all the words with the same label
                     if label in count_label_wgl.keys():
                         count_label_wgl[label] += 1
                     else:
@@ -89,30 +91,33 @@ class NbClassifier(object):
                         count_word_given_label[(word, label)] += 1
                     else:
                         count_word_given_label[(word, label)] = 1
-        print(count_label)
         total_labels = sum(count_label.values())
-        print(total_labels)
+
         # value of c for laplacian smoothing
         c = 1
 
-        # build word_given_label for actual label
-        for tuple in count_word_given_label.keys():
-            word, label = tuple
-            #self.word_given_label[tuple] = count_word_given_label[tuple]/count_label_wgl[label]
+        sum_spam = 0
+        sum_ham = 0
 
-            # build wgl for other label if not present
-            # also gonna build label_prior in here since iterating through count_label already
-            for c_label in count_label.keys():
-                self.label_prior[c_label] = count_label[c_label]/float(total_labels)
+        # build label_prior
+        for label in count_label.keys():
+            self.label_prior[label] = count_label[label]/float(total_labels)
 
+            # build word_given_label for label
+            for word in self.attribute_types:
                 count_word = 0
 
-                if (word, c_label) in self.word_given_label.keys():
-                    count_word = count_word_given_label[(word, c_label)]
+                if (word, label) in count_word_given_label.keys():
+                    count_word = count_word_given_label[(word, label)]
 
-                self.word_given_label[(word, c_label)] = (count_word + c)/(count_label_wgl[c_label]+(c*len(self.attribute_types)))
+                self.word_given_label[(word, label)] = (float(count_word) + c)/(count_label_wgl[label]+(c*len(self.attribute_types)))
 
-        print(self.label_prior)
+                if label == 'spam':
+                    sum_spam += self.word_given_label[(word, label)]
+                else:
+                    sum_ham += self.word_given_label[(word, label)]
+
+        print('sum_spam:{} sum_ham:{}'.format(sum_spam, sum_ham))
         print("Finish training")
 
     # given the probabilities predict the likelihood of being a given label
@@ -122,11 +127,9 @@ class NbClassifier(object):
 
         for label in self.label_prior.keys():
             label_prob[label] = log(self.label_prior[label])
-
             for word in words:
                 if word in self.attribute_types:
                     label_prob[label] += log(self.word_given_label[(word, label)])
-        print(label_prob)
         return label_prob
 
     def evaluate(self, test_filename):
@@ -135,18 +138,18 @@ class NbClassifier(object):
         fscore = 0.0
         accuracy = 0.0
 
-        tp = 0
-        fp = 0
-        tn = 0
-        fn = 0
+        tp = 0.0
+        fp = 0.0
+        tn = 0.0
+        fn = 0.0
 
         print("Evaluating {}".format(test_filename))
         with open(test_filename) as file:
             for line in file.readlines():
                 label, text = line.split('\t')
                 label_candidates = self.predict(text)
-                #print(label_candidates)
                 label_predict = max(label_candidates,key=label_candidates.get)
+                #print(label_candidates)
                 #print("predicted:{}\nactual:{}\n".format(label_predict,label))
                 if label_predict == label:
                     if label == 'spam':
@@ -158,6 +161,7 @@ class NbClassifier(object):
                         fn += 1
                     else:
                         fp += 1
+
         precision = tp/(tp+fp)
         recall = tp/(tp+fn)
         fscore = (2*tp)/(2*tp+fp+fn)
