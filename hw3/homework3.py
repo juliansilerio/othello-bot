@@ -108,6 +108,10 @@ class NbClassifier(object):
         recall = 0.0
         fscore = 0.0
         accuracy = 0.0
+
+        with open(test_filename) as file:
+
+
         return precision, recall, fscore, accuracy
 
     def get_data(training_filename):
