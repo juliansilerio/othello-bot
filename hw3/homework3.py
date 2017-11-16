@@ -8,8 +8,19 @@ from math import log
 import sys, string
 
 def extract_words(text):
-    return text.lower().translate('', '', string.punctuation).split(' ')
+    return text.lower().translate(('', '', string.punctuation)).split(' ')
     # should return a list of words in the data sample.
+
+def get_data(training_filename):
+    data = []
+    print("Reading in {}\n".format(training_filename))
+    with open(training_filename) as file:
+        for line in file.readlines():
+            label, text = line.split('\t')
+            data.append((label, text))
+    print("Finished reading {}\n".format(training_filename))
+    return data
+
 
 
 class NbClassifier(object):
@@ -27,6 +38,7 @@ class NbClassifier(object):
         counter = {}
         data = get_data(training_filename)
 
+        print("Collecting attribute types for {}\n".format(training_filename))
         for datum in data:
             words = datum[1]
             for word in words:
@@ -37,7 +49,9 @@ class NbClassifier(object):
 
         for key in counter.keys():
             if counter[key] >= k:
-                attribute_types.add(key)
+                self.attribute_types.add(key)
+
+        print("Finish attribute types")
 
     def train(self, training_filename):
         self.label_prior = {}
@@ -49,15 +63,16 @@ class NbClassifier(object):
 
         count_label_wgl = {}
 
+        print("Begin training on {}\n".format(training_filename))
         # parse data for count(labels) and count(words|label)
         for datum in data:
             label, text = datum
-            if label in label_prior.keys():
-                count_label[label] = 1
-            else:
+            if label in self.label_prior.keys():
                 count_label[label] += 1
+            else:
+                count_label[label] = 1
 
-        # count words given label
+        # count all words given label
             words = extract_words(text)
             for word in words:
                 if word in self.attribute_types:
@@ -74,7 +89,7 @@ class NbClassifier(object):
                     else:
                         count_word_given_label[(word, label)] = 1
 
-        total_labels = sum(label_count.values())
+        total_labels = sum(count_label.values())
 
         # value of c for laplacian smoothing
         c = 1
@@ -82,25 +97,28 @@ class NbClassifier(object):
         # build word_given_label for actual label
         for tuple in count_word_given_label.keys():
             word, label = tuple
-             self.word_given_label[tuple] = count_word_given_label[tuple]/count_label_wgl[label]
+            self.word_given_label[tuple] = count_word_given_label[tuple]/count_label_wgl[label]
 
             # build wgl for other label if not present
             # also gonna build label_prior in here since smoothing already
             for c_label in count_label.keys():
                 self.label_prior[c_label] = count_label[c_label]/total_labels
 
-                if (word, c_label) not in word_given_label.keys():
-                    self.word_given_label[(word, c_label)] = (count_word_given_label[(word, c_label)]+c)/(count_label_wgl[c_label]+(c*len(self.attribute_types)))
+                if (word, c_label) not in self.word_given_label.keys():
+                    self.word_given_label[(word, c_label)] = (c)/(count_label_wgl[c_label]+(c*len(self.attribute_types)))
+        print("Finish training\n")
 
+    # given the probabilities predict the likelihood of being a given label
     def predict(self, text):
         words = extract_words(text)
         label_prob = {}
 
         for label in self.label_prior.keys():
             label_prob[label] = log(self.label_prior[label])
-            for word in words:
-                label_prob[label] += log(self.word_given_label((word, label)))
 
+            for word in words:
+                if word in self.attribute_types:
+                    label_prob[label] += log(self.word_given_label[(word, label)])
         return label_prob
 
     def evaluate(self, test_filename):
@@ -109,18 +127,34 @@ class NbClassifier(object):
         fscore = 0.0
         accuracy = 0.0
 
+        tp = 0
+        fp = 0
+        tn = 0
+        fn = 0
+
+        print("Evaluating {}\n".format(test_filename))
         with open(test_filename) as file:
-
-
-        return precision, recall, fscore, accuracy
-
-    def get_data(training_filename):
-        data = []
-        with open(training_filename) as file:
-            for line in file.read():
+            for line in file.readlines():
                 label, text = line.split('\t')
-                data.append(label, text)
-        return data
+                label_predict = self.predict(text)
+
+                if label_predict == label:
+                    if label == 'spam':
+                        tp += 1
+                    else:
+                        tn += 1
+                else:
+                    if label == 'spam':
+                        fn += 1
+                    else:
+                        fp += 1
+        precision = tp/(tp+fp)
+        recall = tp/(tp+fn)
+        fscore = (2*tp)/(2*tp+fp+fn)
+        accuracy = (tp+tn)/(tp+tn+fp+fn)
+
+        print("Finish evaluation\n")
+        return precision, recall, fscore, accuracy
 
 
 
