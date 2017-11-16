@@ -4,6 +4,7 @@ jjs2245
 
 '''
 
+from math import log
 import sys, string
 
 def extract_words(text):
@@ -60,6 +61,7 @@ class NbClassifier(object):
             words = extract_words(text)
             for word in words:
                 if word in self.attribute_types:
+
                     # wgl counts
                     if label in count_label_wgl.keys():
                         count_label_wgl[label] += 1
@@ -72,22 +74,34 @@ class NbClassifier(object):
                     else:
                         count_word_given_label[(word, label)] = 1
 
-        # build label_prior
         total_labels = sum(label_count.values())
-        for label in count_label.keys():
-            self.label_prior[label] = count_label[label]/total_labels
 
         # value of c for laplacian smoothing
         c = 1
 
-        # build word_given_label with laplacian smoothing
+        # build word_given_label for actual label
         for tuple in count_word_given_label.keys():
             word, label = tuple
-            self.label_prior[tuple] = (count_word_given_label[tuple]+c)/(count_label_wgl[label]+(c*len(self.attribute_types)))
+             self.word_given_label[tuple] = count_word_given_label[tuple]/count_label_wgl[label]
+
+            # build wgl for other label if not present
+            # also gonna build label_prior in here since smoothing already
+            for c_label in count_label.keys():
+                self.label_prior[c_label] = count_label[c_label]/total_labels
+
+                if (word, c_label) not in word_given_label.keys():
+                    self.word_given_label[(word, c_label)] = (count_word_given_label[(word, c_label)]+c)/(count_label_wgl[c_label]+(c*len(self.attribute_types)))
 
     def predict(self, text):
-        return {} #replace this
+        words = extract_words(text)
+        label_prob = {}
 
+        for label in self.label_prior.keys():
+            label_prob[label] = log(self.label_prior[label])
+            for word in words:
+                label_prob[label] += log(self.word_given_label((word, label)))
+
+        return label_prob
 
     def evaluate(self, test_filename):
         precision = 0.0
