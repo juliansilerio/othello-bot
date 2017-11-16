@@ -35,6 +35,13 @@ class NbClassifier(object):
         self.word_given_label = {}
         self.data = get_data(training_filename)
 
+        self.stopwords = set()
+        if stopword_file:
+            print("Taking note of stopwords")
+            with open(stopword_file) as stop_file:
+                for line in stop_file.readlines():
+                    self.stopwords.add(line)
+
         self.collect_attribute_types(training_filename, 1)
         self.train(training_filename)
 
@@ -46,10 +53,11 @@ class NbClassifier(object):
             label, string = datum
             words = extract_words(string)
             for word in words:
-                if word in counter.keys():
-                    counter[word] += 1
-                else:
-                    counter[word] = 1
+                if word not in self.stopwords:
+                    if word in counter.keys():
+                        counter[word] += 1
+                    else:
+                        counter[word] = 1
 
         for key in counter.keys():
             if counter[key] >= k:
@@ -178,7 +186,9 @@ def print_result(result):
 
 
 if __name__ == "__main__":
-
-    classifier = NbClassifier(sys.argv[1])
+    if sys.argv[3]:
+        classifier = NbClassifier(sys.argv[1], sys.argv[3])
+    else:
+        classifier = NbClassifier(sys.argv[1])
     result = classifier.evaluate(sys.argv[2])
     print_result(result)
